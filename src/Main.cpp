@@ -22,6 +22,9 @@ static void sendToAPI(const char *str)
 
 void Main::onMessage(SleepyDiscord::Message message)
 {
+	if (message.channeID.ID != "865960077051035648")
+		return;
+
 	size_t len = message.mentions.size();
 	if (len > 0) {
 		rapidjson::Document jsonDoc;
