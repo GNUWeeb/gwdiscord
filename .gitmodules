@@ -1,0 +1,3 @@
+[submodule "spm-discord"]
+	path = spm-discord
+	url = https://github.com/GNUWeeb/spm-discord
