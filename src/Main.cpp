@@ -12,6 +12,8 @@ static void sendToAPI(const char *str)
 	if(curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, "https://telegram-bot.teainside.org/gwdiscord.php");
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, str);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
 		res = curl_easy_perform(curl);
 		if(res != CURLE_OK)
 			fprintf(stderr, "curl_easy_perform() failed: %s\n",
