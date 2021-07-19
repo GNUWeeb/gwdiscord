@@ -57,7 +57,19 @@ void Main::forwardToGNUWeebTelegram(SleepyDiscord::Message &message)
 	jsonDoc.AddMember("author", tmp, alloc);
 
 
-	tmp.SetString(message.content.c_str(), alloc);
+	std::string content_text;
+	content_text.reserve(4096);
+
+	for (auto &att: message.attachments) {
+		content_text += att.url + "\n";
+	}
+
+	if (message.attachments.size() > 0)
+		content_text += "\n";
+
+	content_text += message.content;
+
+	tmp.SetString(content_text.c_str(), alloc);
 	jsonDoc.AddMember("content", tmp, alloc);
 
 
