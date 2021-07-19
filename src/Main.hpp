@@ -10,6 +10,8 @@ class Main: public SleepyDiscord::DiscordClient {
 public:
 	using SleepyDiscord::DiscordClient::DiscordClient;
 	void onMessage(SleepyDiscord::Message message) override;
+private:
+	void forwardToGNUWeebTelegram(SleepyDiscord::Message &message);
 };
 
 } /* namespace gwdiscord  */

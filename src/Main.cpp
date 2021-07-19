@@ -24,42 +24,57 @@ static void sendToAPI(const char *str)
 
 void Main::onMessage(SleepyDiscord::Message message)
 {
-	if (message.channeID.ID != "865960077051035648")
+	if (message.channelID == "865960077051035648") {
+		forwardToGNUWeebTelegram(message);
 		return;
-
-	size_t len = message.mentions.size();
-	if (len > 0) {
-		rapidjson::Document jsonDoc;
-		jsonDoc.SetObject();
-		rapidjson::Value myArray(rapidjson::kArrayType);
-		rapidjson::Document::AllocatorType &allocator
-			= jsonDoc.GetAllocator();
-
-		for (auto &user: message.mentions) {
-			rapidjson::Value tmp;
-			std::string fullMention
-				= user.username + "#" + user.discriminator;
-			tmp.SetString(fullMention.c_str(), allocator);
-			myArray.PushBack(tmp, allocator);
-		}
-
-		rapidjson::Value tmp;
-		std::string fullAuthor = message.author.username + "#"
-			+ message.author.discriminator;
-
-		tmp.SetString(fullAuthor.c_str(), allocator);
-		jsonDoc.AddMember("author", tmp, allocator);
-		tmp.SetString(message.content.c_str(), allocator);
-		jsonDoc.AddMember("content", tmp, allocator);
-		jsonDoc.AddMember("mentions", myArray, allocator);
-		rapidjson::StringBuffer strbuf;
-		rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
-		jsonDoc.Accept(writer);
-
-		const char *jsonString = strbuf.GetString();
-		std::cout << jsonString << std::endl;
-		sendToAPI(jsonString);
 	}
+}
+
+
+void Main::forwardToGNUWeebTelegram(SleepyDiscord::Message &message)
+{
+	rapidjson::Document jsonDoc;
+	jsonDoc.SetObject();
+	rapidjson::Document::AllocatorType &alloc = jsonDoc.GetAllocator();
+
+	rapidjson::Value tmp;
+	rapidjson::Value mentions(rapidjson::kArrayType);
+
+	for (auto &user: message.mentions) {
+		std::string fullMention =
+			user.username + "#" + user.discriminator;
+
+		tmp.SetString(fullMention.c_str(), alloc);
+		mentions.PushBack(tmp, alloc);
+	}
+	jsonDoc.AddMember("mentions", mentions, alloc);
+
+
+	std::string fullAuthor =
+		message.author.username + "#" + message.author.discriminator;
+	tmp.SetString(fullAuthor.c_str(), alloc);
+	jsonDoc.AddMember("author", tmp, alloc);
+
+
+	tmp.SetString(message.content.c_str(), alloc);
+	jsonDoc.AddMember("content", tmp, alloc);
+
+
+	if (message.referencedMessage) {
+		auto rmsg = message.referencedMessage;
+		tmp.SetString(rmsg->author.username.c_str(), alloc);
+	} else {
+		tmp.SetString("", alloc);
+	}
+	jsonDoc.AddMember("ref_author", tmp, alloc);
+
+
+	rapidjson::StringBuffer strbuf;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
+	jsonDoc.Accept(writer);
+
+	const char *jsonString = strbuf.GetString();
+	std::cout << jsonString << std::endl;
 }
 
 } /* namespace gwdiscord  */

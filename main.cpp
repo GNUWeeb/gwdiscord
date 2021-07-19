@@ -12,8 +12,8 @@ int main(void)
 		return 1;
 	}
 
-	curl_global_init(CURL_GLOBAL_ALL);
 	gwdiscord::Main client(token, SleepyDiscord::USER_CONTROLED_THREADS);
+	client.setIntents(SleepyDiscord::Intent::SERVER_MESSAGES);
 	client.run();
 	return 0;
 }
