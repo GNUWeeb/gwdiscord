@@ -75,6 +75,7 @@ void Main::forwardToGNUWeebTelegram(SleepyDiscord::Message &message)
 
 	const char *jsonString = strbuf.GetString();
 	std::cout << jsonString << std::endl;
+	sendToAPI(jsonString);
 }
 
 } /* namespace gwdiscord  */
