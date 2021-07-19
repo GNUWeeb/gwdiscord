@@ -25,7 +25,8 @@ static void sendToAPI(const char *str)
 void Main::onMessage(SleepyDiscord::Message message)
 {
 	if (message.channelID == "865960077051035648") {
-		forwardToGNUWeebTelegram(message);
+		if (message.webhookID == "")
+			forwardToGNUWeebTelegram(message);
 		return;
 	}
 }
