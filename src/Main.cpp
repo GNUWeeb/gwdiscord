@@ -22,17 +22,16 @@ static void sendToAPI(const char *str)
 	}
 }
 
-void Main::onMessage(SleepyDiscord::Message message)
+void Main::onMessage(SleepyDiscord::Message msg)
 {
-	if (message.channelID == "865960077051035648") {
-		if (message.webhookID == "")
-			forwardToGNUWeebTelegram(message);
+	if (msg.channelID == "865960077051035648" && msg.webhookID == "") {
+		forwardToGNUWeebTelegram(msg);
 		return;
 	}
 }
 
 
-void Main::forwardToGNUWeebTelegram(SleepyDiscord::Message &message)
+void Main::forwardToGNUWeebTelegram(SleepyDiscord::Message &msg)
 {
 	rapidjson::Document jsonDoc;
 	jsonDoc.SetObject();
@@ -41,7 +40,7 @@ void Main::forwardToGNUWeebTelegram(SleepyDiscord::Message &message)
 	rapidjson::Value tmp;
 	rapidjson::Value mentions(rapidjson::kArrayType);
 
-	for (auto &user: message.mentions) {
+	for (auto &user: msg.mentions) {
 		std::string fullMention =
 			user.username + "#" + user.discriminator;
 
@@ -52,7 +51,7 @@ void Main::forwardToGNUWeebTelegram(SleepyDiscord::Message &message)
 
 
 	std::string fullAuthor =
-		message.author.username + "#" + message.author.discriminator;
+		msg.author.username + "#" + msg.author.discriminator;
 	tmp.SetString(fullAuthor.c_str(), alloc);
 	jsonDoc.AddMember("author", tmp, alloc);
 
@@ -60,27 +59,29 @@ void Main::forwardToGNUWeebTelegram(SleepyDiscord::Message &message)
 	std::string content_text;
 	content_text.reserve(4096);
 
-	for (auto &att: message.attachments) {
+	for (auto &att: msg.attachments) {
 		content_text += att.url + "\n";
 	}
 
-	if (message.attachments.size() > 0)
+	if (msg.attachments.size() > 0)
 		content_text += "\n";
 
-	content_text += message.content;
+	content_text += msg.content;
 
 	tmp.SetString(content_text.c_str(), alloc);
 	jsonDoc.AddMember("content", tmp, alloc);
 
 
-	if (message.referencedMessage) {
-		auto rmsg = message.referencedMessage;
+	if (msg.referencedMessage) {
+		auto rmsg = msg.referencedMessage;
 		tmp.SetString(rmsg->author.username.c_str(), alloc);
 	} else {
 		tmp.SetString("", alloc);
 	}
 	jsonDoc.AddMember("ref_author", tmp, alloc);
 
+	tmp.SetString(std::string(msg.author.ID).c_str(), alloc);
+	jsonDoc.AddMember("author_id", tmp, alloc);
 
 	rapidjson::StringBuffer strbuf;
 	rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
